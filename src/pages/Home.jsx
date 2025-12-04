@@ -100,20 +100,20 @@ export default function Home() {
           </h1>
           {/* Renderizado Condicional del Botón */}
           {isAuthenticated ? (
-            <a
-              href="/dashboard"
+            <Link
+              to="/dashboard"
               className="px-6 py-2 bg-neutral-800 text-white rounded-full text-sm font-medium hover:bg-neutral-600 transition duration-300 shadow-lg"
             >
               Dashboard
-            </a>
+            </Link>
           ) : (
-            <a
-              href="/login"
+            <Link
+              to="/login"
               className="px-4 py-2 bg-neutral-100 text-neutral-800 border border-neutral-300 rounded-full text-sm font-medium hover:bg-neutral-200 transition duration-300 flex items-center space-x-1"
             >
               <TbLockUp className="text-lg" />
               <span className="hidden sm:inline">Iniciar Sesión</span>
-            </a>
+            </Link>
           )}
           <CartIcon onClickCart={openCart} />
         </div>
