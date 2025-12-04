@@ -20,7 +20,7 @@ export default function Login() {
 
     if (res.success) {
       alert("Logged in!");
-     Navigate('/dashboard');
+     Navigate('/');
     } else {
       setMessage(res.message || "Error logging in");
     }
