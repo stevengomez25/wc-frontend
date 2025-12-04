@@ -2,7 +2,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const API_URL = `${BACKEND_URL}/api`;
 
 export const registerUser = async (data) => {
-  const res = await fetch(`auth/${API_URL}/register`, {
+  const res = await fetch(`${API_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -13,7 +13,7 @@ export const registerUser = async (data) => {
 };
 
 export const loginUser = async (data) => {
-  const res = await fetch(`auth/${API_URL}/login`, {
+  const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -24,7 +24,7 @@ export const loginUser = async (data) => {
 };
 
 export const getMe = async () => {
-  const res = await fetch(`auth/${API_URL}/profile`, {
+  const res = await fetch(`${API_URL}/auth/profile`, {
     method: "GET",
     credentials: "include"
   });
@@ -34,7 +34,7 @@ export const getMe = async () => {
 
 
 export const logoutUser = async () => {
-  const res = await fetch(`auth/${API_URL}/logout`, {
+  const res = await fetch(`${API_URL}/auth/logout`, {
     method: "POST",
     credentials: "include"
   });
@@ -43,7 +43,7 @@ export const logoutUser = async () => {
 };
 
 export const createProduct = async() =>{
-  const res = await fetch(`auth/${API_URL}/products`, {
+  const res = await fetch(`${API_URL}/auth/products`, {
     method: "POST",
     credentials: "include"
   });
