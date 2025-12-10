@@ -16,7 +16,7 @@ const calculateTotalStock = (product) => {
   if (Array.isArray(product.availableColors)) {
     totalStock += product.availableColors.reduce((sum, color) => sum + (color.quantity || 0), 0);
   }
-  
+
   // Si no hay variantes definidas, asumimos 0
   return totalStock;
 };
@@ -66,17 +66,25 @@ export default function Products() {
   const closeEditModalHandler = () => {
     setProductToEdit(null);
   };
-  
+
   // --- Función Auxiliar para mostrar variantes en la tabla ---
-  const formatVariants = (sizes, colors) => {
-      const sizeCount = Array.isArray(sizes) ? sizes.length : 0;
-      const colorCount = Array.isArray(colors) ? colors.length : 0;
+  const formatVariants = (variants) => {
+    if (!Array.isArray(variants) || variants.length === 0) {
+      return 'N/A';
+    }
 
-      let summary = [];
-      if (sizeCount > 0) summary.push(`${sizeCount} Talla(s)`);
-      if (colorCount > 0) summary.push(`${colorCount} Color(es)`);
+    // Usa Set para obtener valores únicos
+    const uniqueSizes = new Set(variants.map(v => v.sizeName));
+    const uniqueColors = new Set(variants.map(v => v.colorName));
 
-      return summary.join(' / ') || 'N/A';
+    const sizeCount = uniqueSizes.size;
+    const colorCount = uniqueColors.size;
+
+    let summary = [];
+    if (sizeCount > 0) summary.push(`${sizeCount} Talla(s)`);
+    if (colorCount > 0) summary.push(`${colorCount} Color(es)`);
+
+    return summary.join(' / ');
   };
   // -----------------------------------------------------------
 
@@ -105,7 +113,7 @@ export default function Products() {
               <th className="p-3">Code</th>
               <th className="p-3">Cost</th>
               <th className="p-3">Total Stock</th>
-              <th className="p-3">Variants</th> {/* Nueva columna */}
+              <th className="p-3">Variants</th>
               <th className="p-3">Actions</th>
             </tr>
           </thead>
@@ -133,7 +141,7 @@ export default function Products() {
                     {product.name}
                   </td>
                   <td className="p-3 text-gray-600">{product.code}</td>
-                  
+
                   {/* Stock Total calculado */}
                   <td className="p-3 font-bold text-blue-600">
                     ${product.cost.toLocaleString()}
@@ -142,10 +150,10 @@ export default function Products() {
                   <td className="p-3 text-gray-600 font-bold">
                     {calculateTotalStock(product)} {/* Usamos la función de stock */}
                   </td>
-                  
+
                   {/* Resumen de Variantes */}
                   <td className="p-3 text-sm text-gray-500">
-                    {formatVariants(product.availableSizes, product.availableColors)}
+                    {formatVariants(product.variants)}
                   </td>
 
                   <td className="p-3">
@@ -170,7 +178,7 @@ export default function Products() {
           reload={fetchProducts}
         />
       )}
-      
+
       {/* MODAL DE EDICIÓN */}
       {productToEdit && (
         <EditProductModal

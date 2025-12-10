@@ -7,7 +7,7 @@ import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard"; // Must be imported
-import AdminPanel from "./pages/AdminPanel"; 
+import AdminPanel from "./pages/AdminPanel";
 import NotAuthorized from "./pages/NotAuthorized";
 import Home from "./pages/Home";
 
@@ -19,26 +19,39 @@ import AdminRoute from "./components/AdminRoute";
 import Products from "./pages/Products";
 import Logout from "./pages/Logout";
 import ProductPage from "./pages/ProductPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderManagementPage from "./pages/OrderManagementPage";
 
 
 // 4. Define and Export the App Component (Fixes your main error)
 function App() {
   return (
     <Routes>
-      
+
       {/* Public Routes */}
-      <Route path="/products/:id" element={<ProductPage/>}></Route>
+      <Route path="/products/:id" element={<ProductPage />}></Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/not-authorized" element={<NotAuthorized />} />
       <Route path="/" element={<Home />} />
-      <Route path="/logout" element={<Logout/>} />
+      <Route path="/logout" element={<Logout />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+
       {/* Normal Protected Route */}
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
             <Dashboard />
+            
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute>
+            <OrderManagementPage />
           </ProtectedRoute>
         }
       />
@@ -53,10 +66,10 @@ function App() {
           </AdminRoute>
         }
       />
-      
+
       {/* Add a main/home route if needed */}
       {/* <Route path="/" element={<Home />} /> */}
-      
+
     </Routes>
   );
 }

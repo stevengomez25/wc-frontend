@@ -3,16 +3,16 @@ const API_URL = `${BACKEND_URL}/api`;
 
 
 
- export const getProducts = async () =>{
-    const res = await fetch(`${API_URL}/products`, {
+ export const getOrders = async () =>{
+    const res = await fetch(`${API_URL}/orders`, {
         method:'GET',
         credentials:'include',
     });
     return res.json();
  };
 
- export const getProductById = async (id) =>{
-    const URL = `${API_URL}/products/${id}`; 
+ export const getOrderById = async (id) =>{
+    const URL = `${API_URL}/orders/${id}`; 
 
     try {
         const response = await fetch(URL, {
@@ -27,7 +27,7 @@ const API_URL = `${BACKEND_URL}/api`;
         if (!response.ok) {
             // Si la respuesta no es 2xx, lanza un error o devuelve un objeto de error.
             if (response.status === 404) {
-                return { ok: false, message: 'Product not found' };
+                return { ok: false, message: 'Order not found' };
             }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -37,11 +37,11 @@ const API_URL = `${BACKEND_URL}/api`;
         // 3. Devolver los datos del producto
         return { 
             ok: true, 
-            product: data.product
+            order: data.order
         };
 
     } catch (error) {
-        console.error("Error fetching product by ID:", error);
+        console.error("Error fetching order by ID:", error);
         return { 
             ok: false, 
             message: 'Error de red o del servidor.',
@@ -51,8 +51,8 @@ const API_URL = `${BACKEND_URL}/api`;
  }
 
 
-export const createProduct = async(data) =>{
-    const res = await fetch(`${API_URL}/products`,{
+export const createOrder = async(data) =>{
+    const res = await fetch(`${API_URL}/orders`,{
         method: 'POST',
         headers:{'Content-Type':'application/json'},
         credentials:'include',
@@ -61,9 +61,9 @@ export const createProduct = async(data) =>{
     return res.json();
 };
 
-export const updateProduct = async (id, data) => {
+export const updateOrder = async (id, data) => {
   // La solicitud incluye el ID del producto en la URL
-  const res = await fetch(`${API_URL}/products/${id}`, { 
+  const res = await fetch(`${API_URL}/orders/${id}`, { 
     method: "PUT", // Usar PUT o PATCH
     headers: { "Content-Type": "application/json" },
     credentials: "include", // Importante para la autenticación
@@ -75,8 +75,8 @@ export const updateProduct = async (id, data) => {
 };
 
 
-export const deleteProduct = async (id) => {    
-    const res = await fetch(`${API_URL}/products/${id}`,{
+export const deleteOrder = async (id) => {    
+    const res = await fetch(`${API_URL}/orders/${id}`,{
         method:'DELETE',
         headers:{"Content-Type":"application/json"},
         credentials:'include'

@@ -10,6 +10,11 @@ export const useCart = () => useContext(CartContext);
 // Nombre de la clave que se usará en localStorage
 const LOCAL_STORAGE_KEY = 'webcommerce_cart';
 
+const generateUniqueId = (product) => {
+    // Usamos productId + Talla + Color para garantizar la unicidad
+    return `${product.productId}-${product.sizeName || 'N/A'}-${product.colorName || 'N/A'}`;
+};
+
 // --- FUNCIÓN DEL PROVEEDOR DEL CONTEXTO ---
 export function CartProvider({ children }) {
     const [cartItems, setCartItems] = useState([]);
@@ -48,25 +53,32 @@ export function CartProvider({ children }) {
      * @param {number} quantity - Cantidad a añadir.
      */
     const addToCart = (product, quantity = 1) => {
+
+        const uniqueId = generateUniqueId(product); // El identificador de la variante
+
         setCartItems(currentItems => {
-            const itemIndex = currentItems.findIndex(item => item._id === product._id);
+            // ❌ Antes: item => item._id === product._id
+            // ✅ Ahora: item => item.uniqueId === uniqueId
+            const itemIndex = currentItems.findIndex(item => item.uniqueId === uniqueId); // <--- CAMBIO CLAVE
 
             if (itemIndex > -1) {
-                // 1. Crear una COPIA del array de carritos
+                // Variante existente: Crea copias inmutables y aumenta la cantidad.
                 const newItems = [...currentItems];
-
-                // 2. Crear una COPIA del ítem modificado
                 const existingItem = newItems[itemIndex];
                 newItems[itemIndex] = { ...existingItem, quantity: existingItem.quantity + quantity };
 
                 return newItems;
             } else {
-                // Producto nuevo
+                // Variante nueva: Añádela al carrito.
                 return [...currentItems, {
-                    _id: product._id,
+                    _id: product._id, // Mantenemos el ID del producto principal
                     name: product.name,
                     cost: product.cost,
                     image: product.image,
+                    // Agregamos los datos específicos de la variante para visualización
+                    sizeName: product.sizeName,
+                    colorName: product.colorName,
+                    uniqueId: uniqueId, // USAMOS ESTE COMO IDENTIFICADOR ÚNICO DEL ÍTEM
                     quantity: quantity
                 }];
             }
@@ -78,14 +90,14 @@ export function CartProvider({ children }) {
      * @param {string} productId - El _id del producto.
      * @param {boolean} removeAll - Si es true, elimina el producto del carrito.
      */
-    const updateQuantity = (productId, newQuantity) => {
+    const updateQuantity = (uniqueId, newQuantity) => {
         setCartItems(currentItems => {
-            const itemIndex = currentItems.findIndex(item => item._id === productId);
+            const itemIndex = currentItems.findIndex(item => item.uniqueId === uniqueId);
 
             if (itemIndex > -1) {
                 if (newQuantity <= 0) {
                     // Si la cantidad es 0 o menos, elimínalo
-                    return currentItems.filter(item => item._id !== productId);
+                    return currentItems.filter(item => item.uniqueId !== uniqueId);
                 } else {
                     // Actualiza la cantidad
                     const newItems = [...currentItems];
@@ -101,9 +113,9 @@ export function CartProvider({ children }) {
      * Elimina un ítem por completo del carrito.
      * @param {string} productId - El _id del producto.
      */
-    const removeItem = (productId) => {
+    const removeItem = (uniqueId) => {
         setCartItems(currentItems =>
-            currentItems.filter(item => item._id !== productId)
+            currentItems.filter(item => item.uniqueId !== uniqueId)
         );
     };
 

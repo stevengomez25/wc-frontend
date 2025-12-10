@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { getProducts } from "../api/products";
 import { useAuth } from "../context/AuthContext";
 import { TbLockUp } from "react-icons/tb";
-import { useCart } from "../context/cartContext";
 import CartIcon from "../components/CartIcon";
-import CartSidebar from "../components/CartSidebar";
+import CartSidebar from "../components/CartSideBar";
 import { Link } from "react-router-dom";
 import ProductModal from "../components/ProductModal";
 
@@ -35,11 +34,7 @@ export default function Home() {
     fetchProducts();
   }, []);
 
-  const { addToCart } = useCart();
-
-  const handleAdd = (product) => {
-    addToCart(product, 1);
-  };
+  
 
   const ProductCard = ({ product }) => (
     // 🚨 CAMBIO CLAVE: Al hacer clic en la tarjeta, abre el modal
@@ -80,7 +75,7 @@ export default function Home() {
         <button
           onClick={(e) => {
             e.stopPropagation(); // Evita que se active el openModal del div padre
-            handleAdd(product);
+            openModal(product._id);
           }}
           className="mt-3 w-full bg-neutral-900 active:bg-green-400 text-white py-2 text-sm font-medium rounded-full opacity-0 group-hover:opacity-100 transition duration-300 active:duration-100 active:text-black transform translate-y-2 group-hover:translate-y-0"
         >

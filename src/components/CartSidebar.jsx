@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCart } from '../context/cartContext';
 import { FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 export default function CartSidebar({ isOpen, close }) {
     const { cartItems, subtotal, updateQuantity, removeItem, clearCart } = useCart();
@@ -44,20 +45,22 @@ export default function CartSidebar({ isOpen, close }) {
                                 <div className="flex-1">
                                     <h4 className="font-medium text-neutral-800 line-clamp-1">{item.name}</h4>
                                     <p className="text-sm text-neutral-600">${item.cost.toLocaleString()}</p>
+                                    <p>Color: {item.colorName}</p>
+                                    <p>Talla: {item.sizeName}</p>
                                 </div>
                                 
                                 <div className="flex items-center space-x-2">
                                     {/* Control de Cantidad */}
-                                    <button onClick={() => updateQuantity(item._id, item.quantity - 1)} className="p-1 border rounded-full hover:bg-neutral-100 transition text-sm">
+                                    <button onClick={() => updateQuantity(item.uniqueId, item.quantity - 1)} className="p-1 border rounded-full hover:bg-neutral-100 transition text-sm">
                                         <FaMinus className="w-3 h-3"/>
                                     </button>
                                     <span className="font-medium w-6 text-center">{item.quantity}</span>
-                                    <button onClick={() => updateQuantity(item._id, item.quantity + 1)} className="p-1 border rounded-full hover:bg-neutral-100 transition text-sm">
+                                    <button onClick={() => updateQuantity(item.uniqueId, item.quantity + 1)} className="p-1 border rounded-full hover:bg-neutral-100 transition text-sm">
                                         <FaPlus className="w-3 h-3"/>
                                     </button>
                                     
                                     {/* Eliminar Item */}
-                                    <button onClick={() => removeItem(item._id)} className="ml-3 text-red-500 hover:text-red-700 transition" aria-label="Eliminar">
+                                    <button onClick={() => removeItem(item.uniqueId)} className="ml-3 text-red-500 hover:text-red-700 transition" aria-label="Eliminar">
                                         <FaTrash className="w-4 h-4"/>
                                     </button>
                                 </div>
@@ -73,16 +76,16 @@ export default function CartSidebar({ isOpen, close }) {
                         <span>${subtotal}</span>
                     </div>
                     
-                    <button 
+                    <Link 
                         // Aquí iría la lógica para navegar a la página de Checkout
-                        onClick={() => { alert('Navegando a Checkout!'); close(); }} 
+                        to="/checkout"
                         disabled={cartItems.length === 0}
-                        className={`w-full py-3 text-white rounded-lg font-semibold transition duration-300
+                        className={`flex justify-center w-full py-3 text-white rounded-lg font-semibold transition duration-300
                             ${cartItems.length > 0 ? 'bg-neutral-900 hover:bg-neutral-700' : 'bg-neutral-400 cursor-not-allowed'}
                         `}
                     >
                         Proceder al Checkout
-                    </button>
+                    </Link>
 
                     {cartItems.length > 0 && (
                          <button 
