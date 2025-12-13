@@ -21,6 +21,7 @@ import Logout from "./pages/Logout";
 import ProductPage from "./pages/ProductPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderManagementPage from "./pages/OrderManagementPage";
+import OrderConfirmation from "./pages/OrderConfirmation";
 
 
 // 4. Define and Export the App Component (Fixes your main error)
@@ -29,6 +30,7 @@ function App() {
     <Routes>
 
       {/* Public Routes */}
+      <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
       <Route path="/products/:id" element={<ProductPage />}></Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />

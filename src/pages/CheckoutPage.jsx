@@ -17,14 +17,14 @@ export default function CheckoutPage() {
     const { cartItems, subtotal, clearCart } = useCart();
     const navigate = useNavigate();
     const token = useAuthToken(); // Obtener el token (puede ser null para invitados)
-    const {order, setOrder} = useState(null);
-    
+    const { order, setOrder } = useState(null);
+
     // 1. ESTADO PARA EL FORMULARIO DE ENVÍO
     const [shippingDetails, setShippingDetails] = useState({
         firstName: '', lastName: '', email: '', phone: '',
         address: '', city: '', state: '', zip: '', notes: ''
     });
-    
+
     const [isProcessing, setIsProcessing] = useState(false);
 
     // Función para manejar el cambio en los inputs del formulario
@@ -35,19 +35,19 @@ export default function CheckoutPage() {
 
     // --- CÁLCULOS FINANCIEROS ---
     // Convertimos el subtotal del contexto a un número para cálculos
-    const numericSubtotal = parseFloat(subtotal.replace(/,/g, '')) * 1000;
-    
-    const TAX_RATE = 0.19;
-    // Creamos una simulación de costo de envío, asumiendo que debe ser parte del objeto de orden.
-    const shippingCost = 1000 * Math.floor(Math.random()*(10-3)+3); 
-    const taxAmount = numericSubtotal * TAX_RATE;
-    const totalAmount = (numericSubtotal + taxAmount + shippingCost).toLocaleString();
+    const numericSubtotal = parseFloat(subtotal.replace(/,/g, ''));
 
+    const TAX_RATE = parseFloat(0.19);
+    // Creamos una simulación de costo de envío, asumiendo que debe ser parte del objeto de orden.
+    const shippingCost = parseFloat(Math.floor(Math.random() * (10 - 3) + 3)) / 1000;
+    const taxAmount = parseFloat((numericSubtotal * TAX_RATE));
+    const totalAmount = parseFloat(numericSubtotal + taxAmount + shippingCost);
+    console.log(cartItems)
 
     // --- FUNCIÓN DE PROCESAMIENTO DE ORDEN (INTEGRACIÓN DE API) ---
     const handlePlaceOrder = async (e) => {
         e.preventDefault(); // Evita el envío del formulario HTML
-        
+
         // Validación básica
         if (cartItems.length === 0) {
             alert("Tu carrito está vacío. ¡Añade productos antes de ordenar!");
@@ -58,26 +58,31 @@ export default function CheckoutPage() {
         // Validación de formulario (simple)
         const requiredFields = ['firstName', 'lastName', 'email', 'address', 'city', 'state', 'zip'];
         const isFormValid = requiredFields.every(field => shippingDetails[field].trim() !== '');
-        
+
         if (!isFormValid) {
-             alert("Por favor, completa todos los campos de información de envío requeridos.");
-             return;
+            alert("Por favor, completa todos los campos de información de envío requeridos.");
+            return;
         }
 
         setIsProcessing(true);
 
         const orderData = {
             // Asegúrate que los ítems contengan los campos que tu controlador espera (sku, productId, etc.)
-            items: cartItems.map(item => ({
-                 ...item,
-                 // Tu controlador espera que se incluyan todos los datos necesarios para verificar stock/precio:
-                 productId: item._id,
-                 sizeName: item.sizeName,
-                 colorName: item.colorName,
-                 quantity: item.quantity,
-                 cost: item.cost,
-                 // No incluyas el 'uniqueId' si no es parte de tu esquema de Mongoose Order Item.
-            })),
+            items: cartItems.map(item => {
+                // Intenta usar campos ya presentes
+                const pid = item.productId || item._id || item.id
+                    // Si no hay productId, intenta extraerlo del uniqueId (formato: `${productId}-${size}-${color}`)
+                    || (typeof item.uniqueId === 'string' ? item.uniqueId.split('-')[0] : null);
+
+                return {
+                    ...item,
+                    productId: pid,
+                    sizeName: item.sizeName,
+                    colorName: item.colorName,
+                    quantity: item.quantity,
+                    cost: item.cost,
+                };
+            }),
             shippingAddress: shippingDetails, // Usamos los datos del formulario
             subtotal: numericSubtotal,
             shippingCost: shippingCost,
@@ -87,39 +92,39 @@ export default function CheckoutPage() {
         };
 
         console.log("Enviando orden a /api/orders:", orderData);
-        
+
         try {
             // Llamada POST a tu controlador createOrder
             const response = await axios.post('/api/orders', orderData, {
                 headers: {
                     // Si el usuario está logueado, envía el token. Si no, se procesa como invitado.
-                    ...(token && { Authorization: `Bearer ${token}` }), 
+                    ...(token && { Authorization: `Bearer ${token}` }),
                 },
             });
 
             // ÉXITO: Tu controlador respondió con un status 201
             const newOrder = response.data.order;
-            
+
             // 1. Limpiar el carrito después de la orden exitosa
             clearCart();
 
             // 2. Redirigir al usuario
             alert(`✅ ¡Orden #${newOrder._id.slice(-6).toUpperCase()} procesada con éxito! Se ha actualizado el stock.`);
-            navigate(`/order-confirmation/${newOrder._id}`); 
+            navigate(`/order-confirmation/${newOrder._id}`);
 
         } catch (error) {
             // ERROR: Captura errores de red o errores 400/500 de tu backend
             let errorMessage = "Error desconocido al procesar el pago.";
-            
+
             if (error.response && error.response.data && error.response.data.message) {
                 // Este es el mensaje que viene de tu controlador (ej: "Stock insuficiente", "Discrepancia de precio")
-                errorMessage = error.response.data.message; 
+                errorMessage = error.response.data.message;
             } else {
                 console.error("Error al llamar a la API:", error);
             }
 
             alert(`❌ Error al crear la orden: ${errorMessage}. Por favor, revisa tu carrito.`);
-            
+
         } finally {
             setIsProcessing(false);
         }
@@ -160,7 +165,7 @@ export default function CheckoutPage() {
                             1. Información de Envío
                         </h2>
                         {/* 🎯 El formulario ahora usa el estado `shippingDetails` y el handler `handleInputChange` */}
-                        <form className="space-y-6" onSubmit={handlePlaceOrder}> 
+                        <form className="space-y-6" onSubmit={handlePlaceOrder}>
                             {/* FILA 1: Nombre y Apellido */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
@@ -257,7 +262,7 @@ export default function CheckoutPage() {
                                     className="w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm focus:border-neutral-500 focus:ring-1 focus:ring-neutral-500 transition duration-150 resize-none"
                                 ></textarea>
                             </div>
-                            
+
                             {/* El botón de ordenar ahora es el botón de submit del formulario */}
                             <button
                                 type="submit" // 👈 CRUCIAL: type="submit" para que el onSubmit del form lo active
@@ -297,23 +302,23 @@ export default function CheckoutPage() {
                         <div className="space-y-2 border-t pt-4">
                             <div className="flex justify-between text-base text-neutral-600">
                                 <span>Subtotal de Productos:</span>
-                                <span>${numericSubtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                <span>${(numericSubtotal * 1000000).toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between text-base text-neutral-600">
                                 <span>Envío:</span>
-                                <span>${shippingCost.toLocaleString()}</span>
+                                <span>${(shippingCost * 1000000).toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between text-base text-neutral-600">
                                 <span>Impuestos ({TAX_RATE * 100}%):</span>
-                                <span>${taxAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                <span>${parseFloat((taxAmount * 1000000).toFixed(2)).toLocaleString()}</span>
                             </div>
                         </div>
 
                         <div className="flex justify-between font-bold text-2xl mt-4 border-t pt-4">
                             <span>TOTAL:</span>
-                            <span>${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                            <span>${parseFloat((totalAmount * 1000000).toFixed(2)).toLocaleString()}</span>
                         </div>
-                        
+
                         {/* El botón de ordenar ha sido movido dentro del <form> */}
                         <button
                             onClick={() => navigate('/')}
