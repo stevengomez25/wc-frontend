@@ -232,7 +232,7 @@ export default function ProductModal({ productId, onClose }) {
 
                         {/* TÍTULO Y PRECIO */}
                         <p className="text-sm font-light text-neutral-500 uppercase tracking-widest mb-1">
-                            {product.category || "Ropa Casual"}
+                            {product.description.split(" ")[0] || "Ropa Casual"}
                         </p>
                         <h1 className="text-3xl lg:text-4xl font-light text-neutral-900 mb-4 uppercase tracking-wider">
                             {product.name}
