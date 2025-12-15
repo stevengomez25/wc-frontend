@@ -3,7 +3,7 @@ import { getProducts } from "../api/products";
 import { useAuth } from "../context/AuthContext";
 import { TbLockUp } from "react-icons/tb";
 import CartIcon from "../components/CartIcon";
-import CartSidebar from "../components/CartSideBar";
+import CartSidebar from "../components/CartSidebar";
 import { Link } from "react-router-dom";
 import ProductModal from "../components/ProductModal";
 import { useInView } from "react-intersection-observer";
