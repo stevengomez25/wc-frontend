@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { parse } from 'postcss';
 import { Link } from 'react-router-dom';
+import { getOrders } from '../api/orders';
 
 // --- Componentes de UI de Soporte (Simulados) ---
 const Button = ({ onClick, children, className, disabled }) => (
@@ -58,6 +59,7 @@ const AdminOrderDashboard = ({ token }) => {
                 `${API_BASE_URL}?page=${currentPage}&limit=${limit}&status=${filterStatus}`,
                 {
                     headers: {
+                        'Content-Type': 'application/json',
                         Authorization: `Bearer ${token}`, // Necesitas pasar el token de administrador
                     },
                 }
