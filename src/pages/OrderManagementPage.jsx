@@ -31,7 +31,8 @@ const Select = ({ value, onChange, options }) => (
 
 const AdminOrderDashboard = ({ token }) => {
     // ⚠️ Importante: El token de autenticación se requiere para acceder a las rutas privadas (Admin).
-    const API_BASE_URL = '/api/orders';
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    const API_BASE_URL = `${BACKEND_URL}/api/orders`;
 
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
