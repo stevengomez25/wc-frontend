@@ -11,15 +11,16 @@ export default function CreateProductModal({ close, reload }) {
     image: "",
   });
 
-  // 2. Estado para la lista de Tallas (solo nombres, sin stock aquí)
-  const [availableSizes, setAvailableSizes] = useState([]); // Array de strings: ["S", "M", "L"]
-  // Estado temporal para la nueva talla a agregar
-  const [newSizeName, setNewSizeName] = useState("");
+  // 2. Estado centralizado para las Variantes (Talla, Color, Stock)
+  // Este array se mapea directamente al campo 'variants' de Mongoose.
+  const [variants, setVariants] = useState([]); 
 
-  // 3. Estado para la lista de Colores (solo nombres, sin stock aquí)
-  const [availableColors, setAvailableColors] = useState([]); // Array de strings: ["Rojo", "Azul"]
-  // Estado temporal para el nuevo color a agregar
-  const [newColorName, setNewColorName] = useState("");
+  // 3. Estado temporal para la nueva variante a agregar
+  const [newVariantData, setNewVariantData] = useState({
+    sizeName: "",
+    colorName: "",
+    quantity: 0
+  });
 
   const [message, setMessage] = useState("");
 
@@ -29,50 +30,62 @@ export default function CreateProductModal({ close, reload }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
   
-  // --- Funciones de Tallas (Solo nombres) ---
+  // --- Funciones de Manejo de Variantes ---
 
-  const handleNewSizeChange = (e) => {
-    setNewSizeName(e.target.value);
+  const handleNewVariantChange = (e) => {
+    const { name, value } = e.target;
+    
+    const processedValue = name === 'quantity'
+      ? parseInt(value, 10) || 0
+      : value;
+
+    setNewVariantData({
+      ...newVariantData,
+      [name]: processedValue
+    });
   };
 
-  const handleAddSize = () => {
-    const trimmedSize = newSizeName.trim().toUpperCase();
-
-    // Comprobamos que el nombre no esté vacío y no exista ya
-    if (trimmedSize && !availableSizes.includes(trimmedSize)) {
-      setAvailableSizes([...availableSizes, trimmedSize]);
-      setNewSizeName(""); // Limpiar input
-    } else if (availableSizes.includes(trimmedSize)) {
-      setMessage(`La talla ${trimmedSize} ya ha sido agregada.`);
+  const handleAddVariant = () => {
+    const { sizeName, colorName, quantity } = newVariantData;
+    
+    // Limpieza y estandarización
+    const trimmedSize = sizeName.trim().toUpperCase();
+    const trimmedColor = colorName.trim();
+    
+    if (!trimmedSize || !trimmedColor || quantity < 0) {
+      setMessage("Debes especificar Talla, Color y Stock (>= 0).");
+      return;
     }
-  };
 
-  const handleRemoveSize = (sizeNameToRemove) => {
-    setAvailableSizes(availableSizes.filter(s => s !== sizeNameToRemove));
-  };
-  
-  // --- Funciones de Colores (Solo nombres) ---
+    // Comprobar duplicados (misma talla Y mismo color)
+    const existingVariant = variants.find(v => 
+      v.sizeName === trimmedSize && v.colorName.toUpperCase() === trimmedColor.toUpperCase()
+    );
 
-  const handleNewColorChange = (e) => {
-    setNewColorName(e.target.value);
-  };
-
-  const handleAddColor = () => {
-    const trimmedColor = newColorName.trim();
-
-    // Comprobamos que el nombre no esté vacío y no exista ya (comparación case-insensitive)
-    const exists = availableColors.some(c => c.toUpperCase() === trimmedColor.toUpperCase());
-
-    if (trimmedColor && !exists) {
-      setAvailableColors([...availableColors, trimmedColor]);
-      setNewColorName(""); // Limpiar input
-    } else if (exists) {
-      setMessage(`El color ${trimmedColor} ya ha sido agregado.`);
+    if (existingVariant) {
+      setMessage(`La variante Talla: ${trimmedSize} y Color: ${trimmedColor} ya ha sido agregada.`);
+      return;
     }
+    
+    // 1. Generar un SKU básico para esta nueva variante (usaremos el código del producto al final)
+    // El SKU completo se generará en handleSubmit, pero verificamos que al menos los datos base estén listos.
+    
+    setVariants([
+      ...variants,
+      { 
+        sizeName: trimmedSize, 
+        colorName: trimmedColor, 
+        quantity: quantity 
+      }
+    ]);
+    
+    // Limpiar el estado temporal
+    setNewVariantData({ sizeName: "", colorName: "", quantity: 0 });
+    setMessage("");
   };
 
-  const handleRemoveColor = (colorNameToRemove) => {
-    setAvailableColors(availableColors.filter(c => c !== colorNameToRemove));
+  const handleRemoveVariant = (index) => {
+    setVariants(variants.filter((_, i) => i !== index));
   };
 
   // --- Función de Envío Final ---
@@ -80,64 +93,52 @@ export default function CreateProductModal({ close, reload }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Usar valores por defecto si no se especifican tallas o colores, para crear al menos una variante "N/A"
-    const sizes = availableSizes.length > 0 ? availableSizes : ["N/A"];
-    const colors = availableColors.length > 0 ? availableColors : ["N/A"];
-
-    if (sizes[0] === "N/A" && colors[0] === "N/A") {
-      setMessage("Debes agregar al menos una talla O un color para crear el producto.");
-      return;
-    }
-    
     if (!form.name || !form.code || !form.cost) {
       setMessage("Error: Los campos Nombre, Código y Costo son obligatorios.");
       return;
     }
 
-    // 1. Generar el array de VARIANTS (Combinación Talla x Color)
-    const productCodeBase = form.code.trim().toUpperCase();
-    const variants = [];
-    let variantIndex = 1;
-    let totalStock = 0;
-
-    for (const sizeName of sizes) {
-      for (const colorName of colors) {
-        // Generar un SKU único concatenando el código base y los atributos.
-        // Se recomienda usar una función de indexación para SKUs reales, pero para este caso es suficiente:
-        const sizeSlug = sizeName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-        const colorSlug = colorName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-        const sku = `${productCodeBase}-${sizeSlug}-${colorSlug}`.substring(0, 50);
-
-        variants.push({
-          sku: sku,
-          sizeName: sizeName,
-          colorName: colorName,
-          quantity: 0, // Stock inicial es 0, ya que el usuario no ingresó stock por combinación.
-        });
-        variantIndex++;
-      }
+    if (variants.length === 0) {
+      setMessage("Debes agregar al menos una variante (Talla, Color y Stock).");
+      return;
     }
+
+    // 1. Procesar variantes: Generar SKU y calcular stock total
+    const productCodeBase = form.code.trim().toUpperCase();
+    let totalStock = 0;
     
-    // 2. Preparar el objeto final para el backend
+    const processedVariants = variants.map((variant, index) => {
+      // Usar slugging simple para el SKU
+      const sizeSlug = variant.sizeName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+      const colorSlug = variant.colorName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+      const sku = `${productCodeBase}-${sizeSlug}-${colorSlug}`; // Generar SKU
+      
+      totalStock += variant.quantity; // Sumar al stock total
+
+      return {
+        ...variant,
+        sku: sku,
+      };
+    });
+
     try {
       const productData = {
         ...form,
-        // ¡Usamos el array combinado 'variants' y el campo 'stock'!
-        variants: variants,
-        stock: totalStock, 
+        variants: processedVariants, // Array con SKU incluido
+        stock: totalStock, // Stock total calculado
       };
 
       const data = await createProduct(productData);
 
       if (data.ok) {
-        setMessage("¡Producto creado con éxito!");
+        setMessage("¡Producto y variantes creados con éxito!");
         reload();
         setTimeout(() => close(), 800);
       } else {
-        setMessage(data.message || "Error al crear el producto.");
+        setMessage(data.message || "Error al crear el producto. Verifique si el Código del producto ya existe.");
       }
     } catch (err) {
-      setMessage("Error del servidor al intentar crear el producto.");
+      setMessage("Error del servidor");
     }
   };
 
@@ -146,7 +147,7 @@ export default function CreateProductModal({ close, reload }) {
       <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 animate-fadeIn">
 
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          Crear Producto
+          Crear Producto con Variantes
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -156,104 +157,76 @@ export default function CreateProductModal({ close, reload }) {
           <input name="code" placeholder="Product Code (Requerido)" onChange={handleChange} className="w-full border p-2 rounded-md" required />
           <input name="cost" type="number" placeholder="Cost (Requerido)" onChange={handleChange} className="w-full border p-2 rounded-md" required min="0" />
           <textarea name="description" placeholder="Description" rows={3} onChange={handleChange} className="w-full border p-2 rounded-md" />
-          
-          {/* === CAMPO DINÁMICO DE TALLAS (Solo nombres) === */}
-          {/* Se elimina el input de 'Stock' de esta sección */}
-          <div className="border border-gray-300 p-3 rounded-md bg-gray-50">
-            <label className="block text-base font-semibold text-gray-800 mb-2">📐 Tallas disponibles:</label>
+          <input name="image" placeholder="Image URL (opcional)" onChange={handleChange} className="w-full border p-2 rounded-md" />
+
+          {/* === CAMPO DINÁMICO DE VARIANTES (Talla + Color + Stock) === */}
+          <div className="border border-indigo-300 p-3 rounded-md bg-indigo-50">
+            <label className="block text-base font-semibold text-gray-800 mb-2">📋 Añadir Variante (Talla, Color, Stock):</label>
 
             <div className="flex space-x-2 mb-3 items-end">
-              <div className="flex-grow">
-                <label className="text-xs text-gray-500 block">Talla (Ej: S, M, XL)</label>
+              
+              {/* TALLA */}
+              <div className="flex-1">
+                <label className="text-xs text-gray-500 block">Talla (Ej: S)</label>
                 <input
                   type="text"
                   name="sizeName"
-                  value={newSizeName}
-                  onChange={handleNewSizeChange}
+                  value={newVariantData.sizeName}
+                  onChange={handleNewVariantChange}
                   placeholder="Talla"
                   className="w-full border p-2 rounded-md"
                 />
               </div>
               
-              {/* SECCIÓN DE STOCK ELIMINADA */}
-              
-              <button
-                type="button"
-                onClick={handleAddSize}
-                className="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition h-[42px]"
-              >
-                ➕
-              </button>
-            </div>
-
-            {/* Lista de Tallas Añadidas */}
-            <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
-              {availableSizes.map((sizeName) => (
-                <div
-                  key={sizeName}
-                  className="flex justify-between items-center bg-white border border-dashed text-gray-800 text-sm px-3 py-2 rounded-md shadow-sm"
-                >
-                  <span className="font-medium">
-                    Talla: {sizeName}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveSize(sizeName)}
-                    className="text-red-500 hover:text-red-700 font-bold ml-4 text-lg"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-            {availableSizes.length === 0 && (
-              <p className="text-sm text-gray-500 italic mt-2 text-center">Añade al menos una talla, o usa la sección de colores.</p>
-            )}
-          </div>
-          {/* ========================================================= */}
-          
-          {/* === CAMPO DINÁMICO DE COLORES (Solo nombres) === */}
-          {/* Se elimina el input de 'Stock' de esta sección */}
-          <div className="border border-gray-300 p-3 rounded-md bg-gray-50">
-            <label className="block text-base font-semibold text-gray-800 mb-2">🎨 Colores disponibles:</label>
-
-            <div className="flex space-x-2 mb-3 items-end">
-              <div className="flex-grow">
-                <label className="text-xs text-gray-500 block">Color (Ej: Rojo, Azul)</label>
+              {/* COLOR */}
+              <div className="flex-1">
+                <label className="text-xs text-gray-500 block">Color (Ej: Rojo)</label>
                 <input
                   type="text"
                   name="colorName"
-                  value={newColorName}
-                  onChange={handleNewColorChange}
+                  value={newVariantData.colorName}
+                  onChange={handleNewVariantChange}
                   placeholder="Color"
                   className="w-full border p-2 rounded-md"
                 />
               </div>
               
-              {/* SECCIÓN DE STOCK ELIMINADA */}
+              {/* STOCK */}
+              <div className="w-24">
+                <label className="text-xs text-gray-500 block">Stock</label>
+                <input
+                  type="number"
+                  name="quantity"
+                  value={newVariantData.quantity}
+                  onChange={handleNewVariantChange}
+                  placeholder="0"
+                  min="0"
+                  className="w-full border p-2 rounded-md"
+                />
+              </div>
 
               <button
                 type="button"
-                onClick={handleAddColor}
-                className="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition h-[42px]"
+                onClick={handleAddVariant}
+                className="bg-indigo-600 text-white px-3 py-2 rounded-md hover:bg-indigo-700 transition h-[42px]"
               >
                 ➕
               </button>
             </div>
 
-            {/* Lista de Colores Añadidos */}
-            <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
-              {availableColors.map((colorName) => (
+            {/* Lista de Variantes Añadidas */}
+            <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
+              {variants.map((v, index) => (
                 <div
-                  key={colorName}
+                  key={index}
                   className="flex justify-between items-center bg-white border border-dashed text-gray-800 text-sm px-3 py-2 rounded-md shadow-sm"
                 >
                   <span className="font-medium">
-                    Color: {colorName}
+                    Talla: **{v.sizeName}** | Color: **{v.colorName}** | Stock: **{v.quantity}**
                   </span>
                   <button
                     type="button"
-                    onClick={() => handleRemoveColor(colorName)}
+                    onClick={() => handleRemoveVariant(index)}
                     className="text-red-500 hover:text-red-700 font-bold ml-4 text-lg"
                   >
                     ×
@@ -261,16 +234,14 @@ export default function CreateProductModal({ close, reload }) {
                 </div>
               ))}
             </div>
-            {availableColors.length === 0 && (
-              <p className="text-sm text-gray-500 italic mt-2 text-center">Añade al menos un color, o usa la sección de tallas.</p>
+            {variants.length === 0 && (
+              <p className="text-sm text-gray-500 italic mt-2 text-center">Añade al menos una variante (combinación Talla, Color y Stock).</p>
             )}
           </div>
           {/* ========================================================= */}
           
-          <input name="image" placeholder="Image URL (optional)" onChange={handleChange} className="w-full border p-2 rounded-md" />
-
           <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition mt-6">
-            Crear Producto y sus Variantes
+            Crear Producto ({variants.length} Variantes)
           </button>
         </form>
 
