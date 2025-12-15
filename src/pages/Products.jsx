@@ -148,7 +148,7 @@ export default function Products() {
                   </td>
 
                   <td className="p-3 text-gray-600 font-bold">
-                    {calculateTotalStock(product)} {/* Usamos la función de stock */}
+                    {product.stock} {/* Usamos la función de stock */}
                   </td>
 
                   {/* Resumen de Variantes */}

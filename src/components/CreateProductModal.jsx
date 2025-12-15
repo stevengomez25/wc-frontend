@@ -222,7 +222,7 @@ export default function CreateProductModal({ close, reload }) {
                   className="flex justify-between items-center bg-white border border-dashed text-gray-800 text-sm px-3 py-2 rounded-md shadow-sm"
                 >
                   <span className="font-medium">
-                    Talla: **{v.sizeName}** | Color: **{v.colorName}** | Stock: **{v.quantity}**
+                    Talla: {v.sizeName} | Color: {v.colorName} | Stock: {v.quantity}
                   </span>
                   <button
                     type="button"
