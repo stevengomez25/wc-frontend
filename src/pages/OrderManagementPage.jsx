@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 
 // --- Componentes de UI de Soporte (Simulados) ---
 const Button = ({ onClick, children, className, disabled }) => (
-    <button 
-        onClick={onClick} 
+    <button
+        onClick={onClick}
         disabled={disabled}
         className={`p-2 rounded text-sm font-medium transition duration-300 ease-in-out ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
     >
@@ -14,9 +14,9 @@ const Button = ({ onClick, children, className, disabled }) => (
     </button>
 );
 const Select = ({ value, onChange, options }) => (
-    <select 
-        value={value} 
-        onChange={onChange} 
+    <select
+        value={value}
+        onChange={onChange}
         className="p-2 border border-neutral-300 rounded text-sm bg-white focus:ring-blue-500 focus:border-blue-500 transition duration-150"
     >
         {options.map(opt => (
@@ -30,14 +30,14 @@ const Select = ({ value, onChange, options }) => (
 
 const AdminOrderDashboard = ({ token }) => {
     // ⚠️ Importante: El token de autenticación se requiere para acceder a las rutas privadas (Admin).
-    const API_BASE_URL = '/api/orders'; 
+    const API_BASE_URL = '/api/orders';
 
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [limit, setLimit] = useState(10);
-    const [filterStatus, setFilterStatus] = useState(''); 
+    const [filterStatus, setFilterStatus] = useState('');
     const [selectedOrder, setSelectedOrder] = useState(null); // Para mostrar detalles
 
     const orderStatusOptions = [
@@ -62,9 +62,11 @@ const AdminOrderDashboard = ({ token }) => {
                     },
                 }
             );
-            
-            setOrders(response.data.orders);
-            setTotalPages(response.data.pages);
+
+            const { orders: fetchedOrders = [], pages: fetchedPages = 1 } = response.data || {};
+
+            setOrders(fetchedOrders); // Siempre será un array ([]) o el array de órdenes
+            setTotalPages(fetchedPages); // Siempre será un número (1) o el número real de páginas
             setLoading(false);
 
         } catch (error) {
@@ -95,9 +97,9 @@ const AdminOrderDashboard = ({ token }) => {
                     },
                 }
             );
-            
+
             // Recargar la lista para mostrar el estado actualizado
-            fetchOrders(); 
+            fetchOrders();
             alert(`Estado de la orden ${orderId.slice(-4)} actualizado a ${newStatus}`);
 
         } catch (error) {
@@ -105,7 +107,7 @@ const AdminOrderDashboard = ({ token }) => {
             alert('Error al actualizar el estado. Verifica si el estado es válido.');
         }
     };
-    
+
     // Función que llama a tu controlador getOrder (GET /api/orders/:id)
     const fetchOrderDetails = async (orderId) => {
         try {
@@ -127,9 +129,9 @@ const AdminOrderDashboard = ({ token }) => {
     // Si se ha seleccionado una orden, muestra los detalles
     if (selectedOrder) {
         return (
-            <OrderDetailsView 
-                order={selectedOrder} 
-                onClose={() => setSelectedOrder(null)} 
+            <OrderDetailsView
+                order={selectedOrder}
+                onClose={() => setSelectedOrder(null)}
                 onStatusUpdate={handleStatusUpdate}
                 statusOptions={orderStatusOptions.filter(opt => opt.value !== '')}
             />
@@ -147,7 +149,7 @@ const AdminOrderDashboard = ({ token }) => {
                 <Link to="/dashboard" className="bg-blue-400 hover:bg-blue-300 p-2 rounded m-2">
                     DASHBOARD
                 </Link>
-                
+
                 {/* --- Panel de Filtros y Control (Responsive) --- */}
                 <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 p-4 mb-6 bg-white rounded-xl shadow-lg border border-gray-200">
                     <div className="flex items-center space-x-2">
@@ -177,7 +179,7 @@ const AdminOrderDashboard = ({ token }) => {
                         />
                     </div>
                 </div>
-                
+
                 {/* --- Tabla de Órdenes (Responsive con scroll) --- */}
                 <div className="bg-white shadow-xl rounded-xl overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
@@ -192,14 +194,14 @@ const AdminOrderDashboard = ({ token }) => {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-100">
-                            {orders.length > 0 ? (
+                            {orders && orders.length > 0 ? (
                                 orders.map((order) => (
                                     <tr key={order._id} className="hover:bg-gray-50 transition duration-150">
                                         <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             #{order._id.slice(-6).toUpperCase()}
                                         </td>
                                         <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-600">
-                                            {order.customer 
+                                            {order.customer
                                                 ? `${order.customer.firstName} ${order.customer.lastName}`
                                                 : 'Invitado'
                                             }
@@ -208,21 +210,21 @@ const AdminOrderDashboard = ({ token }) => {
                                             {new Date(order.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}
                                         </td>
                                         <td className="px-3 py-4 whitespace-nowrap text-sm font-bold text-blue-600">
-                                            ${(parseFloat(order.totalAmount.toFixed(2))*1000000).toLocaleString()}
+                                            ${(parseFloat(order.totalAmount.toFixed(2)) * 1000000).toLocaleString()}
                                         </td>
                                         <td className="px-3 py-4 whitespace-nowrap">
                                             <StatusBadge status={order.status} />
                                         </td>
                                         <td className="px-3 py-4 whitespace-nowrap text-sm font-medium">
                                             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 items-start sm:items-center">
-                                                <Button 
+                                                <Button
                                                     className="bg-blue-600 text-white text-xs px-3 py-1"
                                                     onClick={() => fetchOrderDetails(order._id)}
                                                 >
                                                     Detalles
                                                 </Button>
-                                                <Select 
-                                                    value={order.status} 
+                                                <Select
+                                                    value={order.status}
                                                     onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
                                                     options={orderStatusOptions.filter(opt => opt.value !== '')}
                                                 />
@@ -245,14 +247,14 @@ const AdminOrderDashboard = ({ token }) => {
                         Mostrando página <span className="font-medium text-gray-900">{currentPage}</span> de <span className="font-medium text-gray-900">{totalPages}</span>
                     </p>
                     <div className="space-x-2">
-                        <Button 
+                        <Button
                             onClick={() => setCurrentPage(p => p - 1)}
                             disabled={currentPage === 1}
                             className={`bg-neutral-100 text-neutral-800 border border-neutral-300 hover:bg-neutral-200`}
                         >
                             &larr; Anterior
                         </Button>
-                        <Button 
+                        <Button
                             onClick={() => setCurrentPage(p => p + 1)}
                             disabled={currentPage === totalPages}
                             className={`bg-neutral-100 text-neutral-800 border border-neutral-300 hover:bg-neutral-200`}
@@ -296,7 +298,7 @@ const OrderDetailsView = ({ order, onClose, onStatusUpdate, statusOptions }) => 
         <div className="min-h-screen bg-gray-100 p-4 sm:p-6">
             <div className="bg-white rounded-xl shadow-2xl border border-gray-100 max-w-6xl mx-auto p-6 sm:p-8">
                 <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Detalles de la Orden #{order._id.slice(-6).toUpperCase()}</h2>
-                
+
                 {/* Contenedor de Información - Responsive Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     {/* 1. Información General */}
@@ -309,9 +311,9 @@ const OrderDetailsView = ({ order, onClose, onStatusUpdate, statusOptions }) => 
                             <strong className="mr-2 text-sm">Estado Actual:</strong> <StatusBadge status={order.status} />
                         </div>
                         <div className="mt-4 pt-4 border-t border-gray-200">
-                             <strong className="block mb-1 text-sm text-gray-700">Actualizar Estado:</strong>
-                            <Select 
-                                value={order.status} 
+                            <strong className="block mb-1 text-sm text-gray-700">Actualizar Estado:</strong>
+                            <Select
+                                value={order.status}
                                 onChange={(e) => onStatusUpdate(order._id, e.target.value)}
                                 options={statusOptions}
                             />
@@ -331,11 +333,11 @@ const OrderDetailsView = ({ order, onClose, onStatusUpdate, statusOptions }) => 
                     {/* 3. Resumen Financiero */}
                     <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
                         <h3 className="font-bold text-lg mb-2 text-gray-800">💰 Totales Financieros</h3>
-                        <p className="text-sm">Subtotal: <span className="font-medium">${(order.subtotal* 1000000).toLocaleString()}</span></p>
-                        <p className="text-sm">Costo Envío: <span className="font-medium">${(order.shippingCost*1000000).toLocaleString()}</span></p>
-                        <p className="text-sm">Impuestos: <span className="font-medium">${(parseFloat(order.taxAmount.toFixed(2))*1000000).toLocaleString()}</span></p>
+                        <p className="text-sm">Subtotal: <span className="font-medium">${(order.subtotal * 1000000).toLocaleString()}</span></p>
+                        <p className="text-sm">Costo Envío: <span className="font-medium">${(order.shippingCost * 1000000).toLocaleString()}</span></p>
+                        <p className="text-sm">Impuestos: <span className="font-medium">${(parseFloat(order.taxAmount.toFixed(2)) * 1000000).toLocaleString()}</span></p>
                         <div className="text-xl font-bold text-blue-600 mt-3 pt-3 border-t border-gray-200">
-                             Total: ${(parseFloat(order.totalAmount.toFixed(2))*1000000).toLocaleString()}
+                            Total: ${(parseFloat(order.totalAmount.toFixed(2)) * 1000000).toLocaleString()}
                         </div>
                         <p className="text-xs mt-2 text-gray-600">Método de Pago: {order.paymentMethod}</p>
                         <p className="text-xs text-gray-600">Estado Pago: {order.paymentStatus}</p>
@@ -347,10 +349,10 @@ const OrderDetailsView = ({ order, onClose, onStatusUpdate, statusOptions }) => 
                 <div className="space-y-4">
                     {order.items.map((item, index) => (
                         <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 p-4 border border-gray-200 rounded-lg hover:bg-neutral-50 transition duration-150">
-                            <img 
-                                src={item.image || "https://via.placeholder.com/64x64.png?text=No+Img"} 
-                                alt={item.name} 
-                                className="w-16 h-16 object-cover rounded-md border" 
+                            <img
+                                src={item.image || "https://via.placeholder.com/64x64.png?text=No+Img"}
+                                alt={item.name}
+                                className="w-16 h-16 object-cover rounded-md border"
                             />
                             <div className="flex-grow">
                                 <p className="font-semibold text-gray-900">{item.name} <span className="text-sm font-normal text-gray-500">({item.uniqueId})</span></p>
@@ -366,7 +368,7 @@ const OrderDetailsView = ({ order, onClose, onStatusUpdate, statusOptions }) => 
                 </div>
 
                 <div className="mt-8 text-right">
-                    <Button 
+                    <Button
                         onClick={onClose}
                         className="bg-neutral-100 text-neutral-800 border border-neutral-300 hover:bg-neutral-200 px-6 py-2"
                     >
