@@ -3,7 +3,7 @@ import { useCart } from '../context/cartContext';
 import { FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-export default function CartSidebar({ isOpen, close }) {
+export default function CartSideBar({ isOpen, close }) {
     const { cartItems, subtotal, updateQuantity, removeItem, clearCart } = useCart();
     
     // Si la barra no está abierta, no renderizar nada
@@ -73,7 +73,7 @@ export default function CartSidebar({ isOpen, close }) {
                 <div className="p-5 border-t bg-neutral-50">
                     <div className="flex justify-between font-bold text-xl mb-4">
                         <span>Subtotal:</span>
-                        <span>${subtotal}</span>
+                        <span>${subtotal.toLocaleString()}</span>
                     </div>
                     
                     <Link 

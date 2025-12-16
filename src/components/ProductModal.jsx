@@ -242,9 +242,9 @@ export default function ProductModal({ productId, onClose }) {
                         </p>
 
                         {/* ESTADO DE STOCK (VISIBLE) */}
-                        <p className={`mb-4 text-md font-semibold ${isAvailable ? 'text-green-600' : 'text-gray-600'}`}>
+                        <p className={`mb-4 text-md font-semibold ${isAvailable ? 'text-yellow-600' : 'text-gray-600'}`}>
                             {selectedSizeName && selectedColorName
-                                ? (isAvailable ? `Stock Disponible: ${currentStock} unidades.` : 'AGOTADO para esta combinación')
+                                ? (isAvailable ? `Stock Disponible: ultimas unidades!` : 'AGOTADO para esta combinación')
                                 : 'Selecciona talla y color para ver stock'}
                         </p>
 

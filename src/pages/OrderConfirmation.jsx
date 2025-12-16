@@ -145,11 +145,11 @@ const OrderConfirmation = () => {
                     <div className="p-4 bg-neutral-800 text-white rounded-lg shadow-lg text-right md:col-span-1">
                         <h3 className="font-semibold text-lg mb-2 text-neutral-100 uppercase tracking-wider">💰 Total Pagado</h3>
                         {/* RESTAURACIÓN DEL FORMATO ORIGINAL */}
-                        <p className="text-sm text-neutral-300">Subtotal: <span className="font-medium">${(order.subtotal * 1000000).toLocaleString()}</span></p>
-                        <p className="text-sm text-neutral-300">Envío: <span className="font-medium">${(order.shippingCost * 1000000).toLocaleString()}</span></p>
+                        <p className="text-sm text-neutral-300">Subtotal: <span className="font-medium">${(order.subtotal).toLocaleString()}</span></p>
+                        <p className="text-sm text-neutral-300">Envío: <span className="font-medium">${(order.shippingCost).toLocaleString()}</span></p>
                         <div className="text-3xl font-extrabold text-white mt-3 pt-3 border-t border-neutral-600">
                             {/* RESTAURACIÓN DEL FORMATO ORIGINAL */}
-                            ${(parseFloat(order.totalAmount.toFixed(2)) * 1000000).toLocaleString()}
+                            ${(parseFloat(order.totalAmount.toFixed(2))).toLocaleString()}
                         </div>
                     </div>
                 </div>

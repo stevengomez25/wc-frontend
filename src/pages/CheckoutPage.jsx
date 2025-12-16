@@ -1,10 +1,34 @@
 // src/pages/CheckoutPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCart } from '../context/cartContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; // 👈 IMPORTANTE: Importar Axios
 import { createOrder } from '../api/orders';
 
+const WAREHOUSE_LAT = 7.0651;
+const WAREHOUSE_LON = -73.0788;
+const EARTH_RADIUS_KM = 6371;
+
+function haversine(lat1, lon1, lat2, lon2) {
+    // Conversión a radianes
+    const R = EARTH_RADIUS_KM;
+    const toRad = (x) => (x * Math.PI) / 180;
+
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    // Distancia en KM
+    const distance = R * c;
+
+    return distance;
+}
 // NOTA: Debes tener una forma de obtener el token del usuario logueado.
 // Por ahora, lo simulamos o asumimos que se gestiona externamente.
 const useAuthToken = () => {
@@ -17,15 +41,26 @@ export default function CheckoutPage() {
     const { cartItems, subtotal, clearCart } = useCart();
     const navigate = useNavigate();
     const token = useAuthToken(); // Obtener el token (puede ser null para invitados)
-    const { order, setOrder } = useState(null);
+    // const { order, setOrder } = useState(null);
 
+
+
+    // 2. LÓGICA DE TARIFAS (Ejemplo simple)
+    function calculateShippingCost(distanceKm) {
+        if (distanceKm < 50) return 8000;
+        if (distanceKm < 200) return 15000;
+        if (distanceKm < 500) return 25000;
+        return 35000; // Envío de larga distancia
+    }
     // 1. ESTADO PARA EL FORMULARIO DE ENVÍO
     const [shippingDetails, setShippingDetails] = useState({
         firstName: '', lastName: '', email: '', phone: '',
         address: '', city: '', state: '', zip: '', notes: ''
     });
 
+    const [shippingCost, setShippingCost] = useState(0); // 👈 Inicializamos en 0
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isCalculatingShipping, setIsCalculatingShipping] = useState(false); // 👈 NUEVO: Estado para mostrar carga de envío
 
     // Función para manejar el cambio en los inputs del formulario
     const handleInputChange = (e) => {
@@ -35,14 +70,81 @@ export default function CheckoutPage() {
 
     // --- CÁLCULOS FINANCIEROS ---
     // Convertimos el subtotal del contexto a un número para cálculos
-    const numericSubtotal = parseFloat(subtotal.replace(/,/g, ''));
+
 
     const TAX_RATE = parseFloat(0.19);
     // Creamos una simulación de costo de envío, asumiendo que debe ser parte del objeto de orden.
-    const shippingCost = parseFloat(Math.floor(Math.random() * (10 - 3) + 3)) / 1000;
-    const taxAmount = parseFloat((numericSubtotal * TAX_RATE));
-    const totalAmount = parseFloat(numericSubtotal + taxAmount + shippingCost);
-    console.log(cartItems)
+    const taxAmount = parseFloat((subtotal * TAX_RATE));
+    const totalAmount = parseFloat(subtotal + taxAmount + shippingCost);
+
+    // -----------------------------------------------------------------------------------
+    // FUNCIÓN CENTRAL: GEOCÓDIGO Y CÁLCULO DE ENVÍO
+    // -----------------------------------------------------------------------------------
+
+    const getCoordinatesAndCalculateShipping = useCallback(async () => {
+        const { address, city, state, zip } = shippingDetails;
+
+        // Regla: Solo intentar geocodificar si el CP y la dirección principal están llenos.
+        if (!zip || zip.length < 5 || !address) {
+            setShippingCost(0); // Reinicia el costo si la info es incompleta
+            return;
+        }
+
+        setIsCalculatingShipping(true);
+        const fullAddress = `${address}, ${city}, ${state}, ${zip}, Colombia`;
+
+        try {
+            // 1. Petición a Nominatim para obtener Lat/Lon del Destino
+            const response = await axios.get(
+                `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(fullAddress)}&format=json&limit=1`,
+                {
+                    // Buenas prácticas de Nominatim: Identificar tu aplicación
+                    headers: { 'User-Agent': 'MiECommerceApp/1.0 (mi-email@ejemplo.com)' }
+                }
+            );
+
+            if (response.data && response.data.length > 0) {
+                const result = response.data[0];
+                const destLat = parseFloat(result.lat);
+                const destLon = parseFloat(result.lon);
+
+                // 2. Cálculo de la Distancia
+                const distanceKm = haversine(WAREHOUSE_LAT, WAREHOUSE_LON, destLat, destLon);
+
+                // 3. Cálculo del Costo de Envío
+                const newShippingCost = calculateShippingCost(distanceKm);
+
+                // 4. Actualizar el estado del componente
+                setShippingCost(newShippingCost);
+                console.log(`Distancia calculada: ${distanceKm.toFixed(2)} km. Costo de envío: $${newShippingCost.toLocaleString()}`);
+
+            } else {
+                // Si Nominatim no encuentra la dirección
+                setShippingCost(50000); // Tarifa fija alta de emergencia o error
+                console.warn("Geocodificación fallida. Usando tarifa de emergencia.");
+            }
+
+        } catch (error) {
+            console.error("Error al geocodificar o calcular el envío:", error);
+            setShippingCost(50000); // Tarifa fija alta en caso de error de API
+        } finally {
+            setIsCalculatingShipping(false);
+        }
+    }, [shippingDetails]); // Depende de los detalles de envío
+
+    // -----------------------------------------------------------------------------------
+    // EFECTO: DISPARAR EL CÁLCULO CUANDO EL CÓDIGO POSTAL CAMBIE
+    // -----------------------------------------------------------------------------------
+
+    // Se dispara cuando 'zip' cambia.
+    useEffect(() => {
+        // Opcional: puedes usar un debounce aquí para no disparar en cada tecla
+        const timer = setTimeout(() => {
+            getCoordinatesAndCalculateShipping();
+        }, 800); // Espera 800ms después de que el usuario deja de escribir
+
+        return () => clearTimeout(timer); // Limpia el timer si el valor cambia de nuevo
+    }, [shippingDetails.zip, getCoordinatesAndCalculateShipping]);
 
     // --- FUNCIÓN DE PROCESAMIENTO DE ORDEN (INTEGRACIÓN DE API) ---
     const handlePlaceOrder = async (e) => {
@@ -84,7 +186,7 @@ export default function CheckoutPage() {
                 };
             }),
             shippingAddress: shippingDetails, // Usamos los datos del formulario
-            subtotal: numericSubtotal,
+            subtotal: subtotal,
             shippingCost: shippingCost,
             taxAmount: taxAmount,
             totalAmount: totalAmount,
@@ -273,7 +375,7 @@ export default function CheckoutPage() {
                                         : 'bg-green-600 hover:bg-green-700'}
                                 `}
                             >
-                                {isProcessing ? 'PROCESANDO ORDEN...' : 'CONFIRMAR Y PAGAR'}
+                                {isProcessing ? 'PROCESANDO ORDEN...' : 'CONFIRMAR Y ORDENAR'}
                             </button>
                         </form>
                     </div>
@@ -302,21 +404,21 @@ export default function CheckoutPage() {
                         <div className="space-y-2 border-t pt-4">
                             <div className="flex justify-between text-base text-neutral-600">
                                 <span>Subtotal de Productos:</span>
-                                <span>${(numericSubtotal * 1000000).toLocaleString()}</span>
+                                <span>${(subtotal * 1).toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between text-base text-neutral-600">
                                 <span>Envío:</span>
-                                <span>${(shippingCost * 1000000).toLocaleString()}</span>
+                                <span>${(shippingCost).toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between text-base text-neutral-600">
                                 <span>Impuestos ({TAX_RATE * 100}%):</span>
-                                <span>${parseFloat((taxAmount * 1000000).toFixed(2)).toLocaleString()}</span>
+                                <span>${parseFloat((taxAmount * 1).toFixed(2)).toLocaleString()}</span>
                             </div>
                         </div>
 
                         <div className="flex justify-between font-bold text-2xl mt-4 border-t pt-4">
                             <span>TOTAL:</span>
-                            <span>${parseFloat((totalAmount * 1000000).toFixed(2)).toLocaleString()}</span>
+                            <span>${parseInt((totalAmount * 1)).toLocaleString()}</span>
                         </div>
 
                         {/* El botón de ordenar ha sido movido dentro del <form> */}

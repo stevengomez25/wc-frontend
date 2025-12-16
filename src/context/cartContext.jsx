@@ -135,7 +135,7 @@ export function CartProvider({ children }) {
     const contextValue = {
         cartItems,
         totalItems,
-        subtotal: formattedSubtotal,
+        subtotal: subtotal,
         isCartLoading,
         addToCart,
         updateQuantity,
