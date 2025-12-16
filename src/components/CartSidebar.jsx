@@ -3,7 +3,7 @@ import { useCart } from '../context/cartContext';
 import { FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-export default function CartSideBar({ isOpen, close }) {
+export default function CartSidebar({ isOpen, close }) {
     const { cartItems, subtotal, updateQuantity, removeItem, clearCart } = useCart();
     
     // Si la barra no está abierta, no renderizar nada
