@@ -213,7 +213,7 @@ const AdminOrderDashboard = ({ token }) => {
                                             {new Date(order.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}
                                         </td>
                                         <td className="px-3 py-4 whitespace-nowrap text-sm font-bold text-blue-600">
-                                            ${(parseFloat(order.totalAmount.toFixed(2)) * 1000000).toLocaleString()}
+                                            ${(parseFloat(order.totalAmount.toFixed(2))).toLocaleString()}
                                         </td>
                                         <td className="px-3 py-4 whitespace-nowrap">
                                             <StatusBadge status={order.status} />
@@ -336,11 +336,11 @@ const OrderDetailsView = ({ order, onClose, onStatusUpdate, statusOptions }) => 
                     {/* 3. Resumen Financiero */}
                     <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
                         <h3 className="font-bold text-lg mb-2 text-gray-800">💰 Totales Financieros</h3>
-                        <p className="text-sm">Subtotal: <span className="font-medium">${(order.subtotal * 1000000).toLocaleString()}</span></p>
-                        <p className="text-sm">Costo Envío: <span className="font-medium">${(order.shippingCost * 1000000).toLocaleString()}</span></p>
-                        <p className="text-sm">Impuestos: <span className="font-medium">${(parseFloat(order.taxAmount.toFixed(2)) * 1000000).toLocaleString()}</span></p>
+                        <p className="text-sm">Subtotal: <span className="font-medium">${(order.subtotal).toLocaleString()}</span></p>
+                        <p className="text-sm">Costo Envío: <span className="font-medium">${(order.shippingCost).toLocaleString()}</span></p>
+                        <p className="text-sm">Impuestos: <span className="font-medium">${(parseFloat(order.taxAmount.toFixed(2))).toLocaleString()}</span></p>
                         <div className="text-xl font-bold text-blue-600 mt-3 pt-3 border-t border-gray-200">
-                            Total: ${(parseFloat(order.totalAmount.toFixed(2)) * 1000000).toLocaleString()}
+                            Total: ${(parseFloat(order.totalAmount.toFixed(2))).toLocaleString()}
                         </div>
                         <p className="text-xs mt-2 text-gray-600">Método de Pago: {order.paymentMethod}</p>
                         <p className="text-xs text-gray-600">Estado Pago: {order.paymentStatus}</p>
