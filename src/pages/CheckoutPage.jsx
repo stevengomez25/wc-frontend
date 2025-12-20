@@ -204,6 +204,8 @@ export default function CheckoutPage() {
                 },
             });
 
+            console.log("Estructura de la respuesta:", response.data); // 👈 Añade esto
+
             // ÉXITO: Tu controlador respondió con un status 201
             const newOrder = response.data.order;
 
