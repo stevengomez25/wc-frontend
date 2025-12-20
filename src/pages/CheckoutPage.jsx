@@ -4,6 +4,8 @@ import { useCart } from '../context/cartContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; // 👈 IMPORTANTE: Importar Axios
 import { createOrder } from '../api/orders';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const API_URL = `${BACKEND_URL}/api`;
 
 const WAREHOUSE_LAT = 7.0651;
 const WAREHOUSE_LON = -73.0788;
@@ -197,7 +199,7 @@ export default function CheckoutPage() {
 
         try {
             // Llamada POST a tu controlador createOrder
-            const response = await axios.post('/api/orders', orderData, {
+            const response = await axios.post(`${API_URL}/orders`, orderData, {
                 headers: {
                     // Si el usuario está logueado, envía el token. Si no, se procesa como invitado.
                     ...(token && { Authorization: `Bearer ${token}` }),
