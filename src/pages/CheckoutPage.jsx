@@ -197,12 +197,7 @@ export default function CheckoutPage() {
 
         try {
             // Llamada POST a tu controlador createOrder
-            const response = await axios.post('/api/orders', orderData, {
-                headers: {
-                    // Si el usuario está logueado, envía el token. Si no, se procesa como invitado.
-                    ...(token && { Authorization: `Bearer ${token}` }),
-                },
-            });
+            const response = await createOrder(orderData);
 
             // ÉXITO: Tu controlador respondió con un status 201
             const newOrder = response.data.order;
