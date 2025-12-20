@@ -148,7 +148,7 @@ export default function Home() {
                                     {item.name}
                                 </Link>
                             ))}
-                            <Link to="/catalogo" className="px-3 py-1 bg-neutral-900 text-white rounded-full hover:bg-neutral-700 transition duration-150">
+                            <Link to="/catalog" className="px-3 py-1 bg-neutral-900 text-white rounded-full hover:bg-neutral-700 transition duration-150">
                                 Catálogo Completo
                             </Link>
                         </nav>
@@ -255,7 +255,7 @@ export default function Home() {
                 {/* Botón para ver el catálogo completo, alineado con el mockup */}
                 <div className="text-center mt-12 sm:mt-16">
                     <Link
-                        to="/catalogo"
+                        to="/catalog"
                         className="inline-block px-8 py-3 bg-neutral-900 text-white text-sm font-medium rounded-md hover:bg-neutral-700 transition duration-300 shadow-lg"
                     >
                         Ver Catálogo
