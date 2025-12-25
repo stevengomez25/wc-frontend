@@ -26,6 +26,7 @@ import Catalog from "./pages/Catalog";
 import MensPage from "./pages/MensPage";
 import WomensPage from "./pages/WomensPage";
 import KidsBabiesPage from "./pages/KidsBabies";
+import Blog from "./pages/Blog";
 
 // 4. Define and Export the App Component (Fixes your main error)
 function App() {
@@ -45,6 +46,8 @@ function App() {
       <Route path="/men" element={<MensPage/>} />
       <Route path="/women" element={<WomensPage/>} />
       <Route path="/kidsbabies" element={<KidsBabiesPage/>}/>
+      <Route path="/blog" element={<Blog/>}/>
+      
 
       {/* Normal Protected Route */}
       <Route
