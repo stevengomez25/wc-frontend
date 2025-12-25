@@ -125,9 +125,9 @@ export default function Home() {
     // Navegación principal, basada en los enlaces del mockup (Page 1)
     const navItems = [
         { name: "Blog", to: "/blog" },
-        { name: "Niños y bebés", to: "/ninos-bebes" },
-        { name: "Hombres", to: "/hombres" },
-        { name: "Mujeres", to: "/mujeres" },
+        { name: "Niños y bebés", to: "/kidsbabies" },
+        { name: "Hombres", to: "/men" },
+        { name: "Mujeres", to: "/women" },
     ];
 
     return (
@@ -142,13 +142,13 @@ export default function Home() {
                         </Link>
 
                         {/* Links para Desktop */}
-                        <nav className="hidden md:flex space-x-6 text-sm font-medium text-neutral-700">
+                        <nav className="hidden md:flex space-x-6 text-sm font-medium text-center items-center text-neutral-700">
                             {navItems.map((item) => (
                                 <Link key={item.name} to={item.to} className="hover:text-neutral-900 transition duration-150">
                                     {item.name}
                                 </Link>
                             ))}
-                            <Link to="/catalog" className="px-3 py-1 bg-neutral-900 text-white rounded-full hover:bg-neutral-700 transition duration-150">
+                            <Link to="/catalog" className="px-4 py-1 bg-neutral-900 text-center text-white rounded-full hover:bg-neutral-700 transition duration-150">
                                 Catálogo Completo
                             </Link>
                         </nav>

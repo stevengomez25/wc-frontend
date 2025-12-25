@@ -23,7 +23,9 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderManagementPage from "./pages/OrderManagementPage";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import Catalog from "./pages/Catalog";
-
+import MensPage from "./pages/MensPage";
+import WomensPage from "./pages/WomensPage";
+import KidsBabiesPage from "./pages/KidsBabies";
 
 // 4. Define and Export the App Component (Fixes your main error)
 function App() {
@@ -40,6 +42,9 @@ function App() {
       <Route path="/logout" element={<Logout />} />
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/catalog" element={<Catalog/>} />
+      <Route path="/men" element={<MensPage/>} />
+      <Route path="/women" element={<WomensPage/>} />
+      <Route path="/kidsbabies" element={<KidsBabiesPage/>}/>
 
       {/* Normal Protected Route */}
       <Route

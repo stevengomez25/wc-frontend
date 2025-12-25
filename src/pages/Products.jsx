@@ -114,6 +114,7 @@ export default function Products() {
               <th className="p-3">Cost</th>
               <th className="p-3">Total Stock</th>
               <th className="p-3">Variants</th>
+              <th className="p-3">Category</th>
               <th className="p-3">Actions</th>
             </tr>
           </thead>
@@ -154,6 +155,9 @@ export default function Products() {
                   {/* Resumen de Variantes */}
                   <td className="p-3 text-sm text-gray-500">
                     {formatVariants(product.variants)}
+                  </td>
+                  <td className="p-3 text-sm text-gray-500">
+                    {product.category}{console.log(product.category)}
                   </td>
 
                   <td className="p-3">

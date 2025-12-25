@@ -158,6 +158,21 @@ export default function CreateProductModal({ close, reload }) {
           <input name="cost" type="number" placeholder="Cost (Requerido)" onChange={handleChange} className="w-full border p-2 rounded-md" required min="0" />
           <textarea name="description" placeholder="Description" rows={3} onChange={handleChange} className="w-full border p-2 rounded-md" />
           <input name="image" placeholder="Image URL (opcional)" onChange={handleChange} className="w-full border p-2 rounded-md" />
+          <div className="w-full border p-2 rounded-md">
+                <label className="text-xs text-gray-500">Category</label>
+                <select
+                  name="category"
+                  onChange={handleChange}
+                  className="w-full border p-2 rounded-md"
+                >
+                  <option value="" disabled selected>selecciona una categoría</option>
+                  <option value="men">hombre</option>
+                  <option value="women">mujer</option>
+                  <option value="kids">niños</option>
+                  <option value="babies">bebés</option>
+                  <option value="misc">misceláneo</option>
+                </select>
+              </div>
 
           {/* === CAMPO DINÁMICO DE VARIANTES (Talla + Color + Stock) === */}
           <div className="border border-indigo-300 p-3 rounded-md bg-indigo-50">
@@ -204,6 +219,7 @@ export default function CreateProductModal({ close, reload }) {
                   className="w-full border p-2 rounded-md"
                 />
               </div>
+              
 
               <button
                 type="button"
