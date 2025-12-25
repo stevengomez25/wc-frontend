@@ -117,8 +117,7 @@ const Blog = () => {
         <RevealSection>
           <article className="max-w-3xl mx-auto space-y-10 text-lg leading-relaxed text-neutral-700">
             <p className="first-letter:text-5xl first-letter:font-bold first-letter:mr-3 first-letter:float-left">
-              En un mundo donde la primera impresión cuenta, la forma en que nos vestimos va mucho más allá de la simple estética. 
-              La moda es una herramienta que influye directamente en nuestro estado de ánimo y confianza.
+              En un mundo donde la primera impresión cuenta, la forma en que nos vestimos va mucho más allá de la simple estética. La moda, lejos de ser superficial, es una poderosa herramienta que influye directamente en nuestro estado de ánimo, confianza y percepción social. En nuestra tienda online, no solo te ofrecemos ropa; te ofrecemos una inversión en tu bienestar psicológico.
             </p>
             
             <div className="bg-white p-8 border-l-8 border-neutral-900 shadow-md">
@@ -128,6 +127,11 @@ const Blog = () => {
                 Estudios de la Universidad de Northwestern demuestran que el rendimiento mejora según la prenda que vestimos.
               </p>
             </div>
+            <p className="first-letter:text-5xl first-letter:font-bold first-letter:mr-3 first-letter:float-left">
+              La relación entre la ropa y la autoestima es innegable. Vestir prendas que nos sientan bien y que nos gustan eleva nuestra imagen corporal y nos hace sentir más atractivos y capaces. Cuando te miras al espejo y te gusta lo que ves, tu cerebro libera endorfinas, mejorando tu humor y tu confianza.
+              En nuestra página web, entendemos el poder transformador de la ropa. Cada prenda de nuestra colección ha sido seleccionada pensando no solo en la calidad y el diseño, sino también en cómo te hará sentir. <br/>
+              Te invitamos a explorar nuestro catálogo y descubrir cómo un nuevo atuendo puede ser el impulso que necesitas para sentirte más seguro, feliz y preparado para enfrentar cualquier desafío. Vístete bien, siéntete bien y ¡conquista el mundo!
+            </p>
           </article>
         </RevealSection>
 
