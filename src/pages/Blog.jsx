@@ -237,7 +237,7 @@ const Blog = () => {
                         </div>
                     ))}
                 </div>
-                <div className="max-w-7xl mx-2 px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-xs sm:text-sm">
+                <div className="max-w-7xl mx-auto my-2 px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-xs sm:text-sm">
                     <p className="mb-2">©{new Date().getFullYear()} VestiRápido | Todos los derechos reservados.</p>
                     <div className="flex justify-center space-x-4">
                         <a href="#" className="hover:text-neutral-800 transition">
