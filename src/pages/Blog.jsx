@@ -42,7 +42,7 @@ const Blog = () => {
         {
             title: "No Te Quedes Atrás: Las Prendas Que Dominarán la Temporada.",
             author: "Steven Gómez",
-            image: "https://images.unsplash.com/photo-1529139513402-e209979b1af8?auto=format&fit=crop&q=80&w=600",
+            image: "https://hips.hearstapps.com/hmg-prod/images/gettyimages-1461552909-65775e9c51e7a.jpg?crop=0.6666666666666666xw:1xh;center,top&resize=640:*",
         },
         {
             title: "De la pasarela a la calle: el impacto silencioso de la moda en nuestro día a día",
