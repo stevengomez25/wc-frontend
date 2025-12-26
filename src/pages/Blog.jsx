@@ -50,6 +50,33 @@ const Blog = () => {
             image: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&q=80&w=600",
         },
     ];
+    const styleItems = [
+        {
+            name: 'Classic',
+            path: '/catalog?style=classic',
+            image: 'https://www.hollomen.com/cdn/shop/articles/how-to-dress-like-a-classic-gentleman-everyday-939856.jpg?v=1693387536'
+        },
+        {
+            name: 'Dramatic',
+            path: '/catalog?style=dramatic',
+            image: 'https://dress-magazine.com/wp-content/uploads/2022/09/myagkiy-dramatik-stil.jpg'
+        },
+        {
+            name: 'Sporty/Natural',
+            path: '/catalog?style=sporty',
+            image: 'https://akns-images.eonline.com/eol_images/Entire_Site/20241130/rs_1024x759-241230090914-new_year_workout_clothes_hero_image.jpg?fit=around%7C1024:759&output-quality=90&crop=1024:759;center,top'
+        },
+        {
+            name: 'Romantic',
+            path: '/catalog?style=romantic',
+            image: 'https://i.pinimg.com/originals/a8/45/f3/a845f3020f6b487c07158c54836d6da5.jpg'
+        },
+        {
+            name: 'Artistic',
+            path: '/catalog?style=artistic',
+            image: 'https://i.pinimg.com/474x/6c/3c/14/6c3c1417968d68bf0c448e68cfddd4c2.jpg'
+        },
+    ];
 
     return (
         <div className="min-h-screen bg-neutral-50 font-sans text-neutral-900">
@@ -98,20 +125,26 @@ const Blog = () => {
 
                 {/* Sección de Estilos con Animación en Cascada */}
                 <section className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-20">
-                    {['Classic', 'Dramatic', 'Sporty/Natural', 'Romantic', 'Artistic'].map((style, index) => (
-                        <RevealSection key={style} delay={index * 100}>
-                            <div className="group cursor-pointer">
-                                <div className="bg-white aspect-[2/3] mb-3 overflow-hidden shadow-sm border border-neutral-200 group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-[1.02]">
-                                    <div className="w-full h-full bg-neutral-200 animate-pulse group-hover:animate-none group-hover:bg-neutral-100 flex items-center justify-center text-neutral-400 italic text-xs">
-                                        {style} Image
-                                    </div>
+                    {styleItems.map((item, index) => (
+                        <RevealSection key={item.name} delay={index * 100}>
+                            <Link to={item.path} className="group block cursor-pointer">
+                                {/* Contenedor de Imagen */}
+                                <div className="bg-neutral-100 aspect-[2/3] mb-3 overflow-hidden shadow-sm border border-neutral-200 group-hover:shadow-xl transition-all duration-500 transform group-hover:scale-[1.02]">
+                                    <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-700 ease-in-out"
+                                    />
                                 </div>
-                                <p className="text-center italic font-serif text-sm text-neutral-600 uppercase tracking-widest">{style}</p>
-                            </div>
+
+                                {/* Etiqueta / Link de texto */}
+                                <p className="text-center italic font-serif text-sm text-neutral-600 uppercase tracking-widest group-hover:text-neutral-900 transition-colors duration-300">
+                                    {item.name}
+                                </p>
+                            </Link>
                         </RevealSection>
                     ))}
                 </section>
-
                 {/* Cuerpo del Artículo */}
                 <RevealSection>
                     <article className="max-w-3xl mx-auto space-y-10 text-lg leading-relaxed text-neutral-700">
