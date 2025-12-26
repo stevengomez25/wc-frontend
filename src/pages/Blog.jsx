@@ -230,14 +230,14 @@ const Blog = () => {
                         <div key={cat} className="text-center md:text-left">
                             <h4 className="font-bold mb-4 uppercase text-xs tracking-widest">{cat}</h4>
                             <ul className="text-neutral-500 space-y-2 text-sm">
-                                <li className="hover:text-black cursor-pointer transition">Ver todo</li>
-                                <li className="hover:text-black cursor-pointer transition">Nuevos arribos</li>
-                                <li className="hover:text-black cursor-pointer transition">Ofertas</li>
+                                <li className="hover:text-black cursor-pointer transition"><Link to="/catalog">Ver todo</Link></li>
+                                <li className="hover:text-black cursor-pointer transition"><Link to="/catalog">Nuevos arribos</Link></li>
+                                <li className="hover:text-black cursor-pointer transition"><Link to="/catalog">Ofertas</Link></li>
                             </ul>
                         </div>
                     ))}
                 </div>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-xs sm:text-sm">
+                <div className="max-w-7xl mx-2 px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-xs sm:text-sm">
                     <p className="mb-2">©{new Date().getFullYear()} VestiRápido | Todos los derechos reservados.</p>
                     <div className="flex justify-center space-x-4">
                         <a href="#" className="hover:text-neutral-800 transition">
