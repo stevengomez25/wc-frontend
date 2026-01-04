@@ -76,6 +76,7 @@ export default function Login() {
           </button>
         </form>
         <button className="m-2" ><a href="/"><FaRegArrowAltCircleLeft />volver</a></button>
+        <button className="m-2" ><a href="/register">Registrarse</a></button>
 
         {/* Message */}
         {message && (
